@@ -19,7 +19,8 @@ git clone https://Arakadakis_k@bitbucket.org/Arakadakis_k/networking.git
 Most Linux distros and Mac OS come preinstalled with the python compiler
 but if you find any trouble, these are the links to follow :
 
-* python - https://www.python.org
+* [electron](https://electron.atom.io) [```npm install electron -g```]
+* [python](https://www.python.org)
 
 In order to run trackR you will need :
 
