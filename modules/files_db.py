@@ -5,6 +5,7 @@ import time
 def create_f():
     """A method that creates files database and its table ( files_table )
     If exception is raised program exits
+
     """
     try:
         conn = sqlite3.connect('.files.db')
@@ -19,6 +20,8 @@ def create_f():
         return False
 
 create_f()
+
+
 def file_search(url):
     """Fsd df."""
     try:
