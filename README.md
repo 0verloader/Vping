@@ -1,4 +1,4 @@
-![alt text](https://bytebucket.org/Arakadakis_k/networking/raw/a41a6953f4a874ec7985f7ca184ec6fb2644beae/Vping%20Logo.png?token=09241496a2462d0d26f156b4b50d297945610b8a)
+![alt text](https://raw.githubusercontent.com/0verloader/Vping/master/Vping%20Logo.png)
 
 # A peer to peer network for the masses 
 
@@ -19,7 +19,8 @@ git clone https://Arakadakis_k@bitbucket.org/Arakadakis_k/networking.git
 Most Linux distros and Mac OS come preinstalled with the python compiler
 but if you find any trouble, these are the links to follow :
 
-* python - https://www.python.org
+* [electron](https://electron.atom.io) [```npm install electron -g```]
+* [python](https://www.python.org)
 
 In order to run trackR you will need :
 
