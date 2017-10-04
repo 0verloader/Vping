@@ -1,22 +1,26 @@
-import os, random, struct, sys
+import os
+import struct
+import sys
+import random
 from Crypto.Cipher import AES
 
 
 def create_key(passw):
-	length = len(passw)
-	if length<16:
-		for i in range(0,16-length):
-			passw+="_"
-	elif length<24:
-		for i in range(0,24-length):
-			passw+="_"
-	elif length<32:
-		for i in range(0,32-length):
-			passw+="_"
-	return passw
+    """Create an appopriate password."""
+    length = len(passw)
+    if length < 16:
+        for i in range(0, 16 - length):
+            passw += "_"
+    elif length < 24:
+        for i in range(0, 24 - length):
+            passw += "_"
+    elif length < 32:
+        for i in range(0, 32 - length):
+            passw += "_"
+    return passw
 
 
-def encrypt_file(key, in_filename, out_filename=None, chunksize=64*1024):
+def encrypt_file(key, in_filename, out_filename=None, chunksize=64 * 1024):
     if not out_filename:
         out_filename = in_filename + '.enc'
 
@@ -39,4 +43,4 @@ def encrypt_file(key, in_filename, out_filename=None, chunksize=64*1024):
                 outfile.write(encryptor.encrypt(chunk))
 
 
-encrypt_file(key=create_key(sys.argv[1]),in_filename="test.txt")
+#encrypt_file(key=create_key(sys.argv[1]), in_filename="test.txt")
