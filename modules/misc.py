@@ -1,4 +1,4 @@
-""" Contains miscallanious fanctions that help the overall 
+""" Contains miscallanious functions that help the overall 
     function of running program.
 
     Contains:

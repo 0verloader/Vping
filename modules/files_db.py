@@ -1,6 +1,7 @@
 import sqlite3
 import time
 
+MAX_TTL=3600
 
 def create_f():
     """A method that creates files database and its table ( files_table )
@@ -16,7 +17,6 @@ def create_f():
         conn.close()
         return True
     except:
-        print "ssadf"
         return False
 
 create_f()
@@ -33,7 +33,7 @@ def file_search(url):
         conn.close()
         if res == []:
             raise Exception("Not found")
-        return res
+        return res[0]
     except:
         return None
 
@@ -42,14 +42,30 @@ def cache_clearer():
     """Clear the cache of files with negative ttl."""
     while True:
         time.sleep(1)
+        try:
+            conn = sqlite3.connect('.files.db')
+            c = conn.cursor()
+            c.execute('UPDATE files_table SET TTL =  TTL - 1')
+            conn.commit()
+            c.execute('DELETE FROM files_table WHERE TTL = 0 ')
+            conn.commit()
+            c.close()
+            conn.close()
+        except:
+            pass
+
+
+def file_delete(url):
+    try:
         conn = sqlite3.connect('.files.db')
         c = conn.cursor()
-        c.execute('UPDATE files_table SET TTL =  TTL - 1')
-        conn.commit()
-        c.execute('DELETE FROM files_table WHERE TTL = 0 ')
+        c.execute('DELETE FROM files_table WHERE url = "{}" '.format(url))
         conn.commit()
         c.close()
         conn.close()
+        return True
+    except:
+        return False
 
 
 def add_file(name, url, rtt, pswd=None):
@@ -65,4 +81,28 @@ def add_file(name, url, rtt, pswd=None):
     except:
         return False
 
-print add_file("kostas", "sdasdsa", "55")
+
+def update_file_time(url,n_ttl):
+    try:
+        conn = sqlite3.connect('.files.db')
+        c = conn.cursor()
+        c.execute('UPDATE files_table SET TTL = {} WHERE url = "{}"'.format(n_ttl,url))
+        conn.commit()
+        c.close()
+        conn.close()
+        return True
+    except:
+        return False
+
+
+def add_file_f(name, url, pswd=None, via=False):
+    if file_search(url) and via:
+        if file_search(url)[2]>0:
+            return update_file_time(url,MAX_TTL)
+        return False
+    elif file_search(url) and not via:
+        return update_file_time(url,-1)
+    elif not file_search(url) and via:
+        return add_file(name, url, MAX_TTL, pswd)
+    else:
+        return add_file(name, url, -1, pswd)
