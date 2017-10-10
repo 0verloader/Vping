@@ -1,6 +1,5 @@
 import sqlite3
 import time
-
 MAX_TTL=3600
 
 def create_f():
@@ -45,10 +44,14 @@ def cache_clearer():
         try:
             conn = sqlite3.connect('.files.db')
             c = conn.cursor()
-            c.execute('UPDATE files_table SET TTL =  TTL - 1')
+            c.execute('UPDATE files_table SET TTL =  TTL - 1 WHERE TTL > 0')
             conn.commit()
+            res = c.execute('SELECT name,TTL FROM files_table WHERE TTL = 0')
+            res = res.fetchall()
             c.execute('DELETE FROM files_table WHERE TTL = 0 ')
             conn.commit()
+            for r in res:
+                delete_file_os(r[0],r[1])
             c.close()
             conn.close()
         except:
@@ -57,6 +60,8 @@ def cache_clearer():
 
 def file_delete(url):
     try:
+        fl=file_search(url)
+        delete_file_os(fl[0],fl[2])
         conn = sqlite3.connect('.files.db')
         c = conn.cursor()
         c.execute('DELETE FROM files_table WHERE url = "{}" '.format(url))
@@ -106,3 +111,12 @@ def add_file_f(name, url, pswd=None, via=False):
         return add_file(name, url, MAX_TTL, pswd)
     else:
         return add_file(name, url, -1, pswd)
+
+  
+def delete_file_os(name,ttl):
+    if ttl<0:
+        os.remove("Downloads/"+name)
+    else:
+        os.remove("Cache/"+name)
+
+
