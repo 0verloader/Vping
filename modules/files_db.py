@@ -20,7 +20,7 @@ def create_f():
     except:
         return False
 
-create_f()
+
 
 
 def file_search(url):
@@ -39,9 +39,9 @@ def file_search(url):
         return None
 
 
-def cache_clearer():
+def cache_clearer(fl):
     """Clear the cache of files with negative ttl."""
-    while True:
+    while fl[0]:
         time.sleep(1)
         try:
             conn = sqlite3.connect('.files.db')

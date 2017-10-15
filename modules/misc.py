@@ -15,15 +15,22 @@ import subprocess
 import urllib
 import os
 import time
-from socket_p import get_metrics,get_peers
+from socket_p import get_metrics,get_peers,do_nothing
 from files_db import report_files
 import Queue
+from files_db import create_f
+
+def initialize():
+    create_f()
+    if not os.path.exists("Downloads"):
+        os.makedirs("Downloads")
+    if not os.path.exists("Cache"):
+        os.makedirs("Cache")
 
 
 def get_local_ip():
     """Return my local ip if nat otherwise ipv4."""
     try:
-        print "sdsad"
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("gmail.com", 80))
         ip = (s.getsockname()[0])
@@ -312,6 +319,11 @@ def metr(ip_db,port_db,par_threads,my_ip,my_port):
     return message
 
 
+def exit_(fl,my_ip,my_port):
+    str_=raw_input('')
+    if str_ == "quit":
+        fl[0]=False
+        do_nothing(my_ip,my_port)
 
 
 #print metr(43,3,143,get_local_ip(),'434')

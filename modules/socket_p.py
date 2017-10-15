@@ -43,6 +43,15 @@ def get_peers(ip,port):
         return None
 
 
+def do_nothing(ip,port):
+    try:
+        message = {"action":"xxx"}
+        message_str = json.dumps(message)
+        return connect_to(ip, port, message_str, 10)
+    except:
+        return None
+
+
 def get_trackers(ip,port):
     try:
         message = {"action":"get_trackers"}

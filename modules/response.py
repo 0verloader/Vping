@@ -52,25 +52,28 @@ def newSocket(conn,c_add,trip,trport):
                     conn.send(l)
                     l=f.read(1024)
                 conn.send("<EOF>")
+            elif data['action'] == "xxx":
+                message = {"answer":"ok"}
+                message_str = json.dumps(message)
+                conn.sendall(message_str)
         else:
             break
     
 
-def rel(port,trackrIp,trackrPort):
+def rel(port,trackrIp,trackrPort,f):
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_address = ('', int(port))
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind(server_address)
         sock.listen(10)
-        while True:
+        while f[0] is True:
             connection, client_address = sock.accept()
             t =threading.Thread(target=newSocket, args=(connection,client_address,trackrIp,trackrPort))
             t.start()
     except:
         print "Relay service terminated"
     finally:
-        sock.close()
         print "Relay node is dead!"
 
-#rel(3431,1,1)
+
