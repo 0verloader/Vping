@@ -15,17 +15,20 @@ import subprocess
 import urllib
 import os
 import time
-from socket_p import get_metrics,get_peers,do_nothing
-from files_db import report_files
+from socket_p import get_metrics,get_peers,do_nothing,connect_to_tlt,insert_peer
+from files_db import report_files,
 import Queue
 from files_db import create_f
 
-def initialize():
+def initialize(my_ip,my_port):
     create_f()
     if not os.path.exists("Downloads"):
         os.makedirs("Downloads")
     if not os.path.exists("Cache"):
         os.makedirs("Cache")
+    res = connect_to_tlt(ip,port)
+    insert_peer(res['ip'],res['port'],my_ip,my_port)
+    return res['ip'],res['port']
 
 
 def get_local_ip():

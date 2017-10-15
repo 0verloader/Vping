@@ -16,7 +16,7 @@ def newSocket(conn,c_add,trip,trport):
             if data['action'] == "get_files":
                 message=report_files()
                 conn.sendall(message)
-            elif data['action'] == "get_metrics":
+            elif data['action'] == "get_metrics_to_peers":
                 message=metr(trip,trport,10,get_local_ip(),sys.argv[1])
                 conn.sendall(message)
             elif data['action'] == "get_metrics":

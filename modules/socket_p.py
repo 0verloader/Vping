@@ -42,6 +42,13 @@ def get_peers(ip,port):
     except:
         return None
 
+def connect_to_tlt(ip,port):
+    try:
+        message = {"action":"get_tracker"}
+        message_str = json.dumps(message)
+        return connect_to(ip, port, message_str, 10)
+    except:
+        return None
 
 def do_nothing(ip,port):
     try:
