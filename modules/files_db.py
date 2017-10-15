@@ -1,5 +1,7 @@
 import sqlite3
 import time
+import json
+
 MAX_TTL=3600
 
 def create_f():
@@ -119,4 +121,23 @@ def delete_file_os(name,ttl):
     else:
         os.remove("Cache/"+name)
 
+
+
+def my_files():
+    conn = sqlite3.connect('.files.db')
+    c = conn.cursor()
+    res = c.execute('SELECT * FROM files_table')
+    res = res.fetchall()
+    c.close()
+    conn.close()
+    return res
+
+def report_files():
+    res=my_files()
+    multikeys = []
+    for i in range (0, len(res)):
+        multikeys.append({ 'name':res[i][0],'url':res[i][1]})
+    message=json.dumps(multikeys)       
+    print message
+    return message
 

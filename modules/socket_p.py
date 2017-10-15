@@ -3,6 +3,7 @@ import socket
 RECV_BUFFER_SIZE = 1024
 import json
 from files_db import add_file_f
+import time
 
 def connect_to(ip, port, message, ttl=None):
     """Connect to node (ip, port)."""
@@ -22,9 +23,9 @@ def connect_to(ip, port, message, ttl=None):
         return None
 
 
-def get_metrics(ip,port,no_of_pings,url,array,index):
+def get_metrics(ip,port,no_of_pings,ip_end,url,array,index):
     try:
-        message = {"action":"get_metrics","url":url,"no_of_pings":no_of_pings}
+        message = {"action":"get_metrics","url":url,"no_of_pings":no_of_pings,"ip_end":ip_end}
         message_str = json.dumps(message)
         array[index] = connect_to(ip, port, message_str, 45)
         return True
@@ -88,7 +89,6 @@ def get_all_files(ip,port):
 
 
 
-
 def download_via(ip,port,url):
     data=''
     try:
@@ -99,7 +99,7 @@ def download_via(ip,port,url):
         message_str = json.dumps(message)
         name=url.split('/')[-1]
         t1=time.time()
-        sock.sendall(str(message))
+        sock.sendall(str(message_str))
         while(True):
             data=data+sock.recv(1024)
             if "<EOF>" in data:
@@ -125,12 +125,18 @@ def download_directly(url,via=False):
         t1=time.time()
         file=urllib.urlretrieve(url,name)[0]
         t2=time.time()
+        r_name=None
         print "Download time:",float("{0:.2f}".format((t2-t1)*100)),"ms"
         if via:
             os.rename(file,"Cache/"+file)
+            r_name="Cache/"+file
         else:
             os.rename(file,"Downloads/"+file)
+            r_name="Downloads/"+file
         add_file_f(name,url,via=via)
-        return True
+        return r_name
     except:
-        return False
+        return None
+
+#print download_via('localhost',3431,"sdasdasdsadsadasdas/sdas.gr")
+    
