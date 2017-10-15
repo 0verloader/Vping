@@ -16,6 +16,7 @@ import urllib
 import os
 import time
 from socket_p import get_metrics
+import Queue
 
 def get_local_ip():
     """Return my local ip if nat otherwise ipv4."""
@@ -100,6 +101,7 @@ def traceRT(input, pin, index):
    
 def find_full_path(ip,port,ip_end,no_of_pings,array,index,url):
     results=[None]*3
+    """
     socket_T=threading.Thread(target=get_metrics, args=[ip,port,no_of_pings,url,results,0])
     socket_T.start()
     ping_T=threading.Thread(target=ping, args=[ip,no_of_pings,results,1])
@@ -120,35 +122,47 @@ def find_full_path(ip,port,ip_end,no_of_pings,array,index,url):
         path_Trace=None
     else:
         path_Trace=results[0][1]+results[2]
-
+    
     array[index] = path_Ping,path_Trace
+    """
+    array[index]=5,6
     return True
 
 
-def find_all(ip_node_array,node_port_array,ip_end,no_of_pings,url):
-    try:
-        num=len(ip_node_array)
-        results=[None]*(num+1)
-        threads=[None]*num
-        direct=[None]*2
-        for ii in range(0,num):
-            threads[ii]=threading.Thread(target=find_full_path, args=[ip_node_array[ii],node_port_array[ii],ip_end,no_of_pings,results,ii,url])
-            threads[ii].start()
+def find_all(nodes_array,ip_end,no_of_pings,url,par_threads):
+    results=[None]*(len(nodes_array)+1)
+    direct=[None]*2
+    
+    for ii in range(0,len(nodes_array), par_threads):
+        if(ii+par_threads  < len(nodes_array)):
+            threads=[None]*par_threads
+            for yy in range(ii,ii+par_threads):
+                threads[yy-ii]=threading.Thread(target=find_full_path, args=[nodes_array[yy][0],nodes_array[yy][1],ip_end,no_of_pings,results,yy,url])
+                threads[yy-ii].start()
+            for yy in range(ii,ii+par_threads):
+                threads[yy-ii].join()
+        else:
+            threads=[None]*(len(nodes_array)-ii)
+            for yy in range(ii,len(nodes_array)):
+                threads[yy-ii]=threading.Thread(target=find_full_path, args=[nodes_array[yy][0],nodes_array[yy][1],ip_end,no_of_pings,results,yy,url])
+                threads[yy-ii].start()
+            for yy in range(ii,len(nodes_array)):
+                threads[yy-ii].join()
 
-        direct_Ping=threading.Thread(target=ping, args=[ip_end,no_of_pings,direct,0])
-        direct_Ping.start()
-        direct_Trace=threading.Thread(target=traceRT, args=[ip_end,direct,1])
-        direct_Trace.start()
+    direct_Ping=threading.Thread(target=ping, args=[ip_end,no_of_pings,direct,0])
+    direct_Ping.start()
+    direct_Trace=threading.Thread(target=traceRT, args=[ip_end,direct,1])
+    direct_Trace.start()
 
-        for ii in range(0,num):
-            threads[ii].join()
-        direct_Trace.join()
-        direct_Ping.join()
-        results[num]=direct
-        return results
-    except:
-        print 'ERROR : find_all'
+    direct_Trace.join()
+    direct_Ping.join()
+    results[len(nodes_array)]=direct
+    return results
 
+
+aa=[('432.243.2',1),('432.243.2',2),('432.243.2',3)]
+
+print find_all(aa,"dsdadas",4,"dasdasdassadasd",2)
 
 
 def find_Best(ip_node_array,node_port_array,ip_end,no_of_pings,filter,url):
@@ -208,7 +222,7 @@ def find_Best(ip_node_array,node_port_array,ip_end,no_of_pings,filter,url):
                 print "No way to connect to server. Please try again later"
             return
         for ii in range(0,num+1):
-            if((table[ii][0]>0 )and( table[ii][0]<min_Ping)):
+            if((table[ii][0]>0 ) and ( table[ii][0]<min_Ping)):
                 min_Ping=table[ii][0]
                 ping_Index=ii
         ammOfQue=0
