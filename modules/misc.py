@@ -15,21 +15,31 @@ import subprocess
 import urllib
 import os
 import time
-from socket_p import get_metrics,get_peers,do_nothing,connect_to_tlt,insert_peer
-from files_db import report_files,
+from socket_p import get_metrics,get_peers,do_nothing,connect_to_tlt,insert_peer,insert_tracker
+from files_db import report_files
 import Queue
-from files_db import create_f
+from files_db import create_f, create_f_tlt, create_f_tr
 
-def initialize(my_ip,my_port):
+def initialize(my_ip,my_port,ip,port):
     create_f()
     if not os.path.exists("Downloads"):
         os.makedirs("Downloads")
     if not os.path.exists("Cache"):
         os.makedirs("Cache")
     res = connect_to_tlt(ip,port)
+    print res
     insert_peer(res['ip'],res['port'],my_ip,my_port)
     return res['ip'],res['port']
 
+
+
+def initialize_tlt():
+    create_f_tlt()
+
+
+def initialize_tr(my_ip,my_port,ip,port):
+    create_f_tr()
+    insert_tracker(ip,port,my_ip,my_port)
 
 def get_local_ip():
     """Return my local ip if nat otherwise ipv4."""
@@ -324,7 +334,7 @@ def metr(ip_db,port_db,par_threads,my_ip,my_port):
 
 def exit_(fl,my_ip,my_port):
     str_=raw_input('')
-    if str_ == "quit":
+    if str_ == "q":
         fl[0]=False
         do_nothing(my_ip,my_port)
 

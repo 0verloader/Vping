@@ -1,7 +1,7 @@
 import sqlite3
 import time
 import json
-
+from random import randint
 MAX_TTL=3600
 
 def create_f():
@@ -12,7 +12,7 @@ def create_f():
     try:
         conn = sqlite3.connect('.files.db')
         c = conn.cursor()
-        c.execute("CREATE TABLE IF NOT EXISTS files_table(name VARCHAR,url VARCHAR PRIMARY KEY,TTL INTEGER, pswd VARCHAR)")
+        c.execute("CREATE TABLE IF NOT EXISTS files_table(name VARCHAR,url VARCHAR PRIMARY KEY,TTL INTEGER, pswd VARCHAR);")
         conn.commit()
         c.close()
         conn.close()
@@ -20,8 +20,30 @@ def create_f():
     except:
         return False
 
-
-
+def create_f_tr():
+    try:
+        conn = sqlite3.connect('.tracker_db.db')
+        c = conn.cursor()
+        c.execute("CREATE TABLE IF NOT EXISTS peers_table(ip VARCHAR,port INTEGER, PRIMARY KEY (ip,port));")
+        conn.commit()
+        c.execute("CREATE TABLE IF NOT EXISTS files_table(url VARCHAR PRIMARY KEY,ip VARCHAR,port INTEGER)")
+        conn.commit()
+        c.close()
+        conn.close()
+        return True
+    except:
+        return False
+def create_f_tlt():
+    try:
+        conn = sqlite3.connect('.trackers.db')
+        c = conn.cursor()
+        c.execute("CREATE TABLE IF NOT EXISTS trackers_table(ip VARCHAR,port INTEGER,PRIMARY KEY (ip,port))")
+        conn.commit()
+        c.close()
+        conn.close()
+        return True
+    except:
+        return False
 
 def file_search(url):
     """Fsd df."""
@@ -37,6 +59,69 @@ def file_search(url):
         return res[0]
     except:
         return None
+
+def insert_tracker_db(ip,port):
+    try:
+        conn = sqlite3.connect('.trackers.db')
+        c = conn.cursor()
+        c.execute('INSERT INTO trackers_table VALUES("{}","{}")'.format(ip,port))
+        conn.commit()
+        c.close()
+        conn.close()
+        return True
+    except:
+        return False
+
+def insert_peer_db(ip,port):
+    try:
+        conn = sqlite3.connect('.tracker_db.db')
+        c = conn.cursor()
+        c.execute('INSERT INTO peers_table VALUES("{}","{}")'.format(ip,port))
+        conn.commit()
+        c.close()
+        conn.close()
+        return True
+    except:
+        return False
+
+def trackers_report():
+    """Fsd df."""
+    try:
+        conn = sqlite3.connect('.trackers.db')
+        c = conn.cursor()
+        res = c.execute('SELECT * FROM trackers_table')
+        res = res.fetchall()
+        c.close()
+        conn.close()
+        multikeys = []
+        for i in range (0, len(res)):
+            multikeys.append({ 'ip':res[i][0],'port':res[i][1]})
+        message=json.dumps(multikeys)
+        
+        if res == []:
+            raise Exception("Not found")
+        return message
+    except:
+        return None
+
+
+def get_tracker():
+    try:
+        conn = sqlite3.connect('.trackers.db')
+        c = conn.cursor()
+        res = c.execute('SELECT * FROM trackers_table')
+        res = res.fetchall()
+        c.close()
+        conn.close()
+        if res == []:
+            raise Exception("Not found")
+        rand = randint(0,len(res)-1)
+        message = {"ip":res[rand][0],"port":res[rand][1]}
+        message_str = json.dumps(message)
+        return message_str
+    except:
+        return None
+
 
 
 def cache_clearer(fl):

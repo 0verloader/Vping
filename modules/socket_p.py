@@ -20,6 +20,7 @@ def connect_to(ip, port, message, ttl=None):
         data = json.loads(data)
         return data
     except:
+        exit()
         return None
 
 
@@ -48,7 +49,7 @@ def connect_to_tlt(ip,port):
         message_str = json.dumps(message)
         return connect_to(ip, port, message_str, 10)
     except:
-        return None
+        exit()
 
 def do_nothing(ip,port):
     try:
@@ -84,6 +85,15 @@ def insert_peer(ip,port,my_ip,my_port):
         return connect_to(ip, port, message_str, 10)
     except:
         print "insert_peer error"
+
+
+def insert_tracker(ip,port,my_ip,my_port):
+    try:
+        message = {"action":"insert_tracker","ip":my_ip,"port":my_port}
+        message_str = json.dumps(message)
+        return connect_to(ip, port, message_str, 10)
+    except:
+        print "insert_tracker error"
 
 
 def remove_peer(ip,port,my_ip,my_port):
