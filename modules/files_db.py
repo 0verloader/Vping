@@ -104,6 +104,26 @@ def trackers_report():
     except:
         return None
 
+def peers_report():
+    """Fsd df."""
+    try:
+        conn = sqlite3.connect('.tracker_db.db')
+        c = conn.cursor()
+        res = c.execute('SELECT * FROM peers_table')
+        res = res.fetchall()
+        c.close()
+        conn.close()
+        multikeys = []
+        for i in range (0, len(res)):
+            multikeys.append({ 'ip':res[i][0],'port':res[i][1]})
+        message=json.dumps(multikeys)
+        
+        if res == []:
+            raise Exception("Not found")
+        return message
+    except:
+        return None
+
 
 def get_tracker():
     try:

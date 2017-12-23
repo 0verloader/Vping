@@ -27,7 +27,6 @@ def initialize(my_ip,my_port,ip,port):
     if not os.path.exists("Cache"):
         os.makedirs("Cache")
     res = connect_to_tlt(ip,port)
-    print res
     insert_peer(res['ip'],res['port'],my_ip,my_port)
     return res['ip'],res['port']
 
@@ -341,3 +340,16 @@ def exit_(fl,my_ip,my_port):
 
 #print metr(43,3,143,get_local_ip(),'434')
       
+
+def command_box(my_ip,my_port,ip_db,port_db,ip_end,no_of_pings,filtera,url,par_threads):
+    #str_=raw_input('')
+    nodes = get_peers(ip_db,port_db)
+    nodes_ = []
+    for i in nodes:
+        if not(i['ip'] == str(my_ip) and  i['port'] == int(my_port)):
+            nodes_.append((i['ip'], i['port']))
+    print "$"
+    print nodes_
+    print "$"
+    if len(nodes_)!=0:
+        print find_Best_F(nodes_,ip_end,no_of_pings,filtera,url,par_threads)

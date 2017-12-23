@@ -4,7 +4,7 @@ import json
 RECV_BUFFER_SIZE=1024
 from files_db import report_files
 from misc import get_local_ip,metr
-from files_db import file_search, trackers_report, get_tracker,insert_tracker_db,insert_peer_db
+from files_db import file_search, trackers_report, get_tracker,insert_tracker_db,insert_peer_db,peers_report
 from socket_p import download_directly
 import sys
 
@@ -122,6 +122,7 @@ def newSocket_tr(conn,c_add):
     while True:
         data = conn.recv(RECV_BUFFER_SIZE)
         if data:
+            print data
             data=json.loads(data)
             if data['action'] == "insert_peer":
                 message=""
@@ -133,6 +134,9 @@ def newSocket_tr(conn,c_add):
                 conn.sendall(message)
             elif data['action'] == "get_trackers": 
                 message = trackers_report()
+                conn.sendall(message)
+            elif data['action'] == "get_peers": 
+                message = peers_report()
                 conn.sendall(message)
             elif data['action'] == "xxx":
                 message = {"answer":"ok"}
