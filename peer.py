@@ -25,9 +25,8 @@ for i in range(len(flags)):
 	flags[i] = True
 
 ip,port =initialize(get_local_ip(),sys.argv[1],sys.argv[2],sys.argv[3])
-command_box(get_local_ip(),sys.argv[1],ip,port,"wroopsfun.com",3,"RTT","http://wroopsfun.com/wp-content/uploads/2017/12/unethical_life_hacks_11.jpg?x86721",3)
-"""
-t1=threading.Thread(target=rel, args=[sys.argv[1],1,1,flags])
+
+t1=threading.Thread(target=rel, args=[sys.argv[1],1,1,flags,sys.argv[1]])
 t1.start()
 
 t2=threading.Thread(target=cache_clearer, args=[flags])
@@ -35,5 +34,5 @@ t2.start()
 
 t3 = threading.Thread(target=exit_, args=[flags,get_local_ip(),sys.argv[1]])
 t3.start()
+command_box(get_local_ip(),sys.argv[1],ip,port,"www.google.gr",3,"RTT","http://wroopsfun.com/wp-content/uploads/2017/12/unethical_life_hacks_11.jpg?x86721",3)
 
-"""

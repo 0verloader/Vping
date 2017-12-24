@@ -28,10 +28,11 @@ def get_metrics(ip,port,no_of_pings,ip_end,url,array,index):
     try:
         message = {"action":"get_metrics","url":url,"no_of_pings":no_of_pings,"ip_end":ip_end}
         message_str = json.dumps(message)
-        array[index] = connect_to(ip, port, message_str, 45)
+        ret_m = connect_to(ip, port, message_str, 45)
+        array[index] = (ret_m['ping'] , ret_m['RTT'])
         return True
     except:
-        array[index] = None
+        array[index] = (None,None)
         return False
 
 

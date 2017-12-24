@@ -61,6 +61,7 @@ def get_ip():
         ip = j['ip']
         return ip
     except:
+        print "nonono1"
         return None
 
 
@@ -68,8 +69,9 @@ def ping(input, number, pin, index):
     """A method that pings to ip = input
     If it fails returns -1
     """
+
     try:
-        ping = subprocess.check_output(["ping", "-c", number, input])
+        ping = subprocess.check_output(["ping", "-c", str(number), input])
         ping = (ping.split('/'))
         pin[index] = float(ping[-3])
     except:
@@ -119,11 +121,10 @@ def traceRT(input, pin, index):
             pin[index] = int(trace[1])
     except:
         pin[index] = None
-
    
 def find_full_path(ip,port,ip_end,no_of_pings,array,index,url):
     results=[None]*3
-    socket_T=threading.Thread(target=get_metrics, args=[ip,port,no_of_pings,url,results,0])
+    socket_T=threading.Thread(target=get_metrics, args=[ip,port,no_of_pings,ip_end,url,results,0])
     socket_T.start()
     ping_T=threading.Thread(target=ping, args=[ip,no_of_pings,results,1])
     ping_T.start()
@@ -133,16 +134,16 @@ def find_full_path(ip,port,ip_end,no_of_pings,array,index,url):
     socket_T.join()
     ping_T.join()
     trace_T.join()
-
+    print results
     if(results[0][0]==None or results[1]==None):
         path_Ping=None
     else:
-        path_Ping=results[0][0]+results[1]
+        path_Ping=float(results[0][0])+float(results[1])
 
     if(results[0][1]==None or results[2]==None):
         path_Trace=None
     else:
-        path_Trace=results[0][1]+results[2]
+        path_Trace=int(results[0][1])+int(results[2])
     
     array[index] = path_Ping,path_Trace
     return True
@@ -157,26 +158,31 @@ def find_all(nodes_array,ip_end,no_of_pings,url,par_threads):
     direct_Trace=threading.Thread(target=traceRT, args=[ip_end,direct,1])
     direct_Trace.start()
 
-    for ii in range(0,len(nodes_array), par_threads):
-        if(ii+par_threads  < len(nodes_array)):
-            threads=[None]*par_threads
-            for yy in range(ii,ii+par_threads):
-                threads[yy-ii]=threading.Thread(target=find_full_path, args=[nodes_array[yy][0],nodes_array[yy][1],ip_end,no_of_pings,results,yy,url])
-                threads[yy-ii].start()
-            for yy in range(ii,ii+par_threads):
-                threads[yy-ii].join()
-        else:
-            threads=[None]*(len(nodes_array)-ii)
-            for yy in range(ii,len(nodes_array)):
-                threads[yy-ii]=threading.Thread(target=find_full_path, args=[nodes_array[yy][0],nodes_array[yy][1],ip_end,no_of_pings,results,yy,url])
-                threads[yy-ii].start()
-            for yy in range(ii,len(nodes_array)):
-                threads[yy-ii].join()
 
-    direct_Trace.join()
-    direct_Ping.join()
-    results[len(nodes_array)]=direct[0],direct[1]
-
+    try:
+        for ii in range(0,len(nodes_array), par_threads):
+            if(ii+par_threads  < len(nodes_array)):
+                threads=[None]*par_threads
+                for yy in range(ii,ii+par_threads):
+                    threads[yy-ii]=threading.Thread(target=find_full_path, args=[nodes_array[yy][0],nodes_array[yy][1],ip_end,no_of_pings,results,yy,url])
+                    threads[yy-ii].start()
+                for yy in range(ii,ii+par_threads):
+                    threads[yy-ii].join()
+            else:
+                threads=[None]*(len(nodes_array)-ii)
+                for yy in range(ii,len(nodes_array)):
+                    threads[yy-ii]=threading.Thread(target=find_full_path, args=[nodes_array[yy][0],nodes_array[yy][1],ip_end,no_of_pings,results,yy,url])
+                    threads[yy-ii].start()
+                for yy in range(ii,len(nodes_array)):
+                    threads[yy-ii].join()
+        direct_Trace.join()
+        direct_Ping.join()
+        results[len(nodes_array)]=(direct[0],direct[1])
+    except:
+        direct_Trace.join()
+        direct_Ping.join()
+        results = (direct[0],direct[1])
+        
     return results
 
 
@@ -277,6 +283,7 @@ def find_Best(table,filter):
 
 def find_Best_F(nodes_array,ip_end,no_of_pings,filter,url,par_threads):
     table=find_all(nodes_array,ip_end,no_of_pings,url,par_threads)
+    print table
     res=find_Best(table,filter)
     if res == len(nodes_array):
         return ip_end
@@ -348,8 +355,5 @@ def command_box(my_ip,my_port,ip_db,port_db,ip_end,no_of_pings,filtera,url,par_t
     for i in nodes:
         if not(i['ip'] == str(my_ip) and  i['port'] == int(my_port)):
             nodes_.append((i['ip'], i['port']))
-    print "$"
-    print nodes_
-    print "$"
-    if len(nodes_)!=0:
-        print find_Best_F(nodes_,ip_end,no_of_pings,filtera,url,par_threads)
+
+    print find_Best_F(nodes_,socket.gethostbyname(ip_end),no_of_pings,filtera,url,par_threads)

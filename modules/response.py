@@ -3,12 +3,12 @@ import socket
 import json
 RECV_BUFFER_SIZE=1024
 from files_db import report_files
-from misc import get_local_ip,metr
+from misc import get_local_ip,metr,ping,traceRT
 from files_db import file_search, trackers_report, get_tracker,insert_tracker_db,insert_peer_db,peers_report
 from socket_p import download_directly
 import sys
 
-def newSocket(conn,c_add,trip,trport):
+def newSocket(conn,c_add,trip,trport,my_port):
     while True:
         data = conn.recv(RECV_BUFFER_SIZE)
         if data:
@@ -17,23 +17,26 @@ def newSocket(conn,c_add,trip,trport):
                 message=report_files()
                 conn.sendall(message)
             elif data['action'] == "get_metrics_to_peers":
-                message=metr(trip,trport,10,get_local_ip(),sys.argv[1])
+                message=metr(trip,trport,10,get_local_ip(),my_port)
                 conn.sendall(message)
             elif data['action'] == "get_metrics":
+                print data
                 if(file_search(data['url'])!=None):
                     message = {"ping":0,"RTT":0}
                     message_str = json.dumps(message)
                     conn.sendall(message_str)
                 else:
+                    print "||||||||||||||||||||"
                     res=[None]*2
-                    zPing=threading.Thread(target=misc.ping, args=[data['ip_end'],data['no_of_pings'],res,0])
+                    zPing=threading.Thread(target=ping, args=[data['ip_end'],data['no_of_pings'],res,0])
                     zPing.start()
-                    zTrace=threading.Thread(target=misc.traceRT, args=[data['ip_end'],res,1])
+                    zTrace=threading.Thread(target=traceRT, args=[data['ip_end'],res,1])
                     zTrace.start()
                     zPing.join()
                     zTrace.join()
                     message = {"ping":res[0],"RTT":res[1]}
                     message_str = json.dumps(message)
+                    print message_str
                     conn.sendall(message_str)
             elif data['action'] == "download_via":
                 fl = file_search(data['url'])
@@ -60,7 +63,7 @@ def newSocket(conn,c_add,trip,trport):
             break
     
 
-def rel(port,trackrIp,trackrPort,f):
+def rel(port,trackrIp,trackrPort,f,my_port):
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_address = ('', int(port))
@@ -69,7 +72,7 @@ def rel(port,trackrIp,trackrPort,f):
         sock.listen(10)
         while f[0] is True:
             connection, client_address = sock.accept()
-            t =threading.Thread(target=newSocket, args=(connection,client_address,trackrIp,trackrPort))
+            t =threading.Thread(target=newSocket, args=(connection,client_address,trackrIp,trackrPort,my_port))
             t.start()
     except:
         print "Relay service terminated"
